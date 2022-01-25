@@ -1,5 +1,13 @@
-let mySprite: Sprite = null
-let gravity = 0
+function setLevel (level: number) {
+    if (level == 0) {
+        tiles.setTilemap(tilemap`level1`)
+    } else if (level == 1) {
+        tiles.setTilemap(tilemap`level2`)
+    }
+}
+controller.up.onEvent(ControllerButtonEvent.Pressed, function () {
+    jump()
+})
 function setPlayer () {
     mySprite = sprites.create(img`
         . . . . . . f f f f . . . . . . 
@@ -19,13 +27,34 @@ function setPlayer () {
         . . . . . f f f f f f . . . . . 
         . . . . . f f . . f f . . . . . 
         `, SpriteKind.Player)
-    gravity = 100
+    gravity = 200
     mySprite.ay = gravity
     scene.cameraFollowSprite(mySprite)
     controller.moveSprite(mySprite, 100, 0)
     info.setLife(3)
     info.setScore(0)
 }
+scene.onOverlapTile(SpriteKind.Player, sprites.swamp.swampTile1, function (sprite, location) {
+    currentLevel += 1
+    setLevel(currentLevel)
+    initializeLevel()
+})
+scene.onOverlapTile(SpriteKind.Player, sprites.dungeon.hazardLava1, function (sprite, location) {
+    info.changeLifeBy(-1)
+    tiles.placeOnRandomTile(mySprite, sprites.builtin.forestTiles0)
+})
 function jump () {
-	
+    if (mySprite.isHittingTile(CollisionDirection.Bottom)) {
+        mySprite.vy = -120
+    }
 }
+function initializeLevel () {
+    tiles.placeOnRandomTile(mySprite, sprites.builtin.forestTiles0)
+}
+let gravity = 0
+let mySprite: Sprite = null
+let currentLevel = 0
+currentLevel = 0
+setPlayer()
+setLevel(currentLevel)
+initializeLevel()
